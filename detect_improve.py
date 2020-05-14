@@ -70,7 +70,6 @@ class Detector:
         min_side = min(w, h)
         scale = 1
 
-
         while min_side > 12:
             img_data = self.img_transfrom(image).to(device)
             img_data.unsqueeze_(0)
@@ -121,6 +120,7 @@ class Detector:
             _y1 = int(box[1])
             _x2 = int(box[2])
             _y2 = int(box[3])
+            # crop裁剪的时候超出原图大小的坐标会自动填充为黑色
             img_crop = image.crop([_x1, _y1, _x2, _y2])
             img_crop = img_crop.resize((24, 24))
             img_data = self.img_transfrom(img_crop).to(device)
@@ -168,44 +168,47 @@ class Detector:
             img_dataset.append(img_data)
 
         _cls, _offset, _point = self.onet(torch.stack(img_dataset))
-        _cls = _cls.data.cpu()
-        _offset = _offset.data.cpu()
-        _point = _point.data.cpu()
-        indexes = torch.nonzero(_cls > 0.99)[:, 0]
-        for index in indexes:
-            box = square_boxes[index]
-            _x1 = int(box[0])
-            _y1 = int(box[1])
-            _x2 = int(box[2])
-            _y2 = int(box[3])
-            side = _x2 - _x1
+        _cls = _cls.data.cpu().numpy()
+        _offset = _offset.data.cpu().numpy()
+        _point = _point.data.cpu().numpy()
+        indexes, _ = np.where(_cls > 0.97)
+        # (n,5)
+        box = square_boxes[indexes]
+        # (n,)
+        _x1 = box[:, 0]
+        _y1 = box[:, 1]
+        _x2 = box[:, 2]
+        _y2 = box[:, 3]
+        side = _x2 - _x1
+        # (n,4)
+        offset = _offset[indexes]
+        # (n,)
+        x1 = _x1 + side * offset[:, 0]
+        y1 = _y1 + side * offset[:, 1]
+        x2 = _x2 + side * offset[:, 2]
+        y2 = _y2 + side * offset[:, 3]
+        # (n,)
+        cls = _cls[indexes][:, 0]
+        # (n,10)
+        point = _point[indexes]
+        px1 = _x1 + side * point[:, 0]
+        py1 = _y1 + side * point[:, 1]
+        px2 = _x1 + side * point[:, 2]
+        py2 = _y1 + side * point[:, 3]
+        px3 = _x1 + side * point[:, 4]
+        py3 = _y1 + side * point[:, 5]
+        px4 = _x1 + side * point[:, 6]
+        py4 = _y1 + side * point[:, 7]
+        px5 = _x1 + side * point[:, 8]
+        py5 = _y1 + side * point[:, 9]
+        # np.array([x1, y1, x2, y2, cls, px1, py1, px2, py2, px3, py3, px4, py4, px5, py5]) (15,n)
+        boxes.extend(np.stack([x1, y1, x2, y2, cls, px1, py1, px2, py2, px3, py3, px4, py4, px5, py5], axis=1))
 
-            offset = _offset[index]
-            x1 = int(_x1 + side * offset[0])
-            y1 = int(_y1 + side * offset[1])
-            x2 = int(_x2 + side * offset[2])
-            y2 = int(_y2 + side * offset[3])
-            cls = _cls[index][0]
-
-            point = _point[index]
-            px1 = int(_x1 + side * point[0])
-            py1 = int(_y1 + side * point[1])
-            px2 = int(_x1 + side * point[2])
-            py2 = int(_y1 + side * point[3])
-            px3 = int(_x1 + side * point[4])
-            py3 = int(_y1 + side * point[5])
-            px4 = int(_x1 + side * point[6])
-            py4 = int(_y1 + side * point[7])
-            px5 = int(_x1 + side * point[8])
-            py5 = int(_y1 + side * point[9])
-
-            boxes.append([x1, y1, x2, y2, cls, px1, py1, px2, py2, px3, py3, px4, py4, px5, py5])
-
-        return tool.nms(np.array(boxes), 0.3, isMin=True)
+        return tool.nms(np.stack(boxes), 0.3, isMin=True)
 
 
 if __name__ == '__main__':
-    img_name = r"04.jpg"
+    img_name = r"07.jpg"
     img_path = os.path.join("./detect_img", img_name)
     img = Image.open(img_path)
     detector = Detector("param/p_net.pth", "param/r_net.pth", "param/o_net.pth")
@@ -219,6 +222,6 @@ if __name__ == '__main__':
         cv2.rectangle(img, (x1, y1), (x2, y2), color=(0, 0, 255), thickness=3)
         for i in range(5, 15, 2):
             cv2.circle(img, (int(box[i]), int(box[i + 1])), radius=2, color=(255, 255, 0), thickness=-1)
-    # cv2.imwrite(os.path.join("./out_img", img_name), img)
+    cv2.imwrite(os.path.join("./out_img", img_name), img)
     # cv2.imshow("img", img)
     cv2.waitKey(0)

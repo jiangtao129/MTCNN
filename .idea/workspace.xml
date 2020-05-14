@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="6727c59b-5c60-436b-aca7-439275c7a684" name="Default Changelist" comment="" />
+    <list default="true" id="6727c59b-5c60-436b-aca7-439275c7a684" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/detect_img/07.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/detect_improve.py" beforeDir="false" afterPath="$PROJECT_DIR$/detect_improve.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out_img/04.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/out_img/04.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/param_abandon/o_net.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/param_abandon/p_net.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/param_abandon/r_net.pth" beforeDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,7 +24,11 @@
       </list>
     </option>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="ProjectId" id="1aKNpoSMnCBcu3z1MR6jEHY6Qs4" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showExcludedFiles" value="true" />
@@ -23,15 +36,17 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../MyProject" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="E:\PycharmProjects\MTCNN_test02" />
-    </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\PycharmProjects\MTCNN_landmark\detect_img" />
       <recent name="E:\PycharmProjects\MTCNN_landmark\param3" />
       <recent name="E:\PycharmProjects\MTCNN_landmark" />
+      <recent name="E:\PycharmProjects\MTCNN_test02" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
       <recent name="E:\PycharmProjects\MTCNN_test02" />
     </key>
   </component>
@@ -175,6 +190,17 @@
       <updated>1586480510204</updated>
     </task>
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="WindowStateProjectService">
     <state x="774" y="325" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1586569294931">
