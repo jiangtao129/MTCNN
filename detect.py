@@ -6,6 +6,7 @@ from torchvision import transforms
 import time
 from PIL import Image, ImageDraw
 import cv2
+import os
 
 """
 pnet_param,rnet_param,用普通5万个样本训练得到的
@@ -94,7 +95,8 @@ class Detector:
             image = image.resize((_w, _h))
             min_side = min(_w, _h)
 
-        return tool.nms(np.array(boxes), 0.3)
+        # return tool.nms(np.array(boxes), 0.3)
+        return tool.soft_nms(np.array(boxes), 0.3)
 
     def box(self, index, cls, offset, scale, stride=2, side_len=12):
         _x1 = int(index[1] * stride) / scale
@@ -171,7 +173,7 @@ class Detector:
         _cls = _cls.data.cpu()
         _offset = _offset.data.cpu()
         _point = _point.data.cpu()
-        indexes = torch.nonzero(_cls > 0.9)[:, 0]
+        indexes = torch.nonzero(_cls > 0.8)[:, 0]
         for index in indexes:
             box = square_boxes[index]
             _x1 = int(box[0])
@@ -205,14 +207,14 @@ class Detector:
 
 
 if __name__ == '__main__':
-    img_path = r"./detect_img/09.jpg"
+    img_path = r"./detect_img/10.jpg"
     img = Image.open(img_path)
     # img_draw = ImageDraw.Draw(img)
     detector = Detector("param/p_net.pth", "param/r_net.pth", "param/o_net.pth")
     pnet_boxes, rnet_boxes, onet_boxes = detector.detect(img)
     # for box in onet_boxes:
     #     img_draw.rectangle((box[0], box[1], box[2], box[3]), outline='red')
-    # img.show()
+    # img.show()r
     img = cv2.imread(img_path)
     for box in onet_boxes:
         x1 = int(box[0])
@@ -223,7 +225,7 @@ if __name__ == '__main__':
         for i in range(5,15,2):
             cv2.circle(img, (int(box[i]), int(box[i+1])), radius=1, color=(255, 255, 0), thickness=-1)
 
-    # cv2.imwrite("./out_img/09.jpg", img)
+    cv2.imwrite(os.path.join("./out_img", img_path), img)
     cv2.imshow("img", img)
     cv2.waitKey(0)
 

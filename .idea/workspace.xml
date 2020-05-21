@@ -2,16 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6727c59b-5c60-436b-aca7-439275c7a684" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/detect_img/08.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/detect_img/09.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/detect_video.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/detect_video/test01.mp4" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/webcam_demo.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/detect_img/10.jpg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/detect.py" beforeDir="false" afterPath="$PROJECT_DIR$/detect.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/detect_improve.py" beforeDir="false" afterPath="$PROJECT_DIR$/detect_improve.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/generate_sample.py" beforeDir="false" afterPath="$PROJECT_DIR$/generate_sample.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/tool.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -39,18 +32,18 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/detect_img" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="E:\PycharmProjects\MTCNN_test02" />
-    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="D:\PycharmProjects\MTCNN_landmark\detect_img" />
       <recent name="D:\PycharmProjects\MTCNN_landmark\detect_video" />
       <recent name="D:\PycharmProjects\MTCNN_landmark" />
       <recent name="E:\PycharmProjects\MTCNN_landmark\param3" />
       <recent name="E:\PycharmProjects\MTCNN_landmark" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\PycharmProjects\MTCNN_test02" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -65,7 +58,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.webcam_demo">
+  <component name="RunManager" selected="Python.detect">
     <configuration name="detect" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="MTCNN_test02" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -173,8 +166,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.webcam_demo" />
         <item itemvalue="Python.detect" />
+        <item itemvalue="Python.webcam_demo" />
         <item itemvalue="Python.tool" />
         <item itemvalue="Python.video_detect" />
         <item itemvalue="Python.detect_video" />
@@ -192,6 +185,14 @@
       <option name="presentableId" value="Default" />
       <updated>1586480510204</updated>
     </task>
+    <task id="LOCAL-00001" summary="'add video'">
+      <created>1590027921487</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1590027921488</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -206,6 +207,10 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="'add video'" />
+    <option name="LAST_COMMIT_MESSAGE" value="'add video'" />
   </component>
   <component name="WindowStateProjectService">
     <state x="774" y="325" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1586569294931">
