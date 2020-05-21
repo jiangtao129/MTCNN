@@ -35,7 +35,7 @@ class Detector:
     def detect(self, image):
         start_time = time.time()
         pnet_boxes = self.pnet_detect(image)
-        print("pnet:", pnet_boxes.shape)
+        # print("pnet:", pnet_boxes.shape)
         if pnet_boxes.shape[0] == 0:
             print("P网络为检测到人脸")
             return np.array([])
@@ -44,7 +44,7 @@ class Detector:
 
         start_time = time.time()
         rnet_boxes = self.rnet_detect(image, pnet_boxes)
-        print("rnet:", rnet_boxes.shape)
+        # print("rnet:", rnet_boxes.shape)
         if rnet_boxes.shape[0] == 0:
             print("R网络为检测到人脸")
             return np.array([])
@@ -53,7 +53,7 @@ class Detector:
 
         start_time = time.time()
         onet_boxes = self.onet_detect(image, rnet_boxes)
-        print("onet:", onet_boxes.shape)
+        # print("onet:", onet_boxes.shape)
         if onet_boxes.shape[0] == 0:
             print("O网路未检测到人脸")
             return np.array([])
@@ -62,7 +62,7 @@ class Detector:
 
         sum_time = pnet_time + rnet_time + onet_time
         print("time:{}, pnet_time:{}, rnet_time:{}, onet_time:{}".format(sum_time, pnet_time, rnet_time, onet_time))
-        return pnet_boxes, rnet_boxes, onet_boxes
+        return onet_boxes
 
     def pnet_detect(self, image):
         boxes = []
@@ -71,6 +71,13 @@ class Detector:
         scale = 1
 
         while min_side > 12:
+            # 判断images是何种类型
+            # if isinstance(image, (np.ndarray, torch.Tensor)):
+            #     # img_data = torch.as_tensor(image, device=device)
+            #     img_data = torch.as_tensor(image).to(device)
+            #     img_data = img_data.permute(2, 0, 1).float()
+            # else:
+            #     img_data = self.img_transfrom(image).to(device)
             img_data = self.img_transfrom(image).to(device)
             img_data.unsqueeze_(0)
             _cls, _offset = self.pnet(img_data)
@@ -114,44 +121,44 @@ class Detector:
     def rnet_detect(self, image, pnet_boxes):
         boxes = []
         img_dataset = []
+        # 将建议框转换成正方形在从原图上截取并缩放成24*24，以防止人脸变形
         square_boxes = tool.convert_to_square(pnet_boxes)
         for box in square_boxes:
             _x1 = int(box[0])
             _y1 = int(box[1])
             _x2 = int(box[2])
             _y2 = int(box[3])
-            # crop裁剪的时候超出原图大小的坐标会自动填充为黑色
             img_crop = image.crop([_x1, _y1, _x2, _y2])
             img_crop = img_crop.resize((24, 24))
             img_data = self.img_transfrom(img_crop).to(device)
             img_dataset.append(img_data)
-        # (n,1) (n,4)
+
+        # (n,1)  (n,4)
         _cls, _offset = self.rnet(torch.stack(img_dataset))
+        # 两种取索引的方法numpy.where和torch.nonzero
+        # _cls = _cls.cpu().data.numpy()
+        # offset = _offset.cpu().data.numpy()
+        # idexes, _ = np.where(_cls > 0.6)
+        _cls = _cls.data.cpu()
+        _offset = _offset.data.cpu()
+        indexes = torch.nonzero(_cls > 0.7)[:, 0]
+        for index in indexes:
+            box = square_boxes[index]
+            _x1 = int(box[0])
+            _y1 = int(box[1])
+            _x2 = int(box[2])
+            _y2 = int(box[3])
+            side = _x2 - _x1
 
-        _cls = _cls.data.cpu().numpy()
-        _offset = _offset.data.cpu().numpy()
-        indexes, _ = np.where(_cls > 0.6)
-        # (n,5)
-        box = square_boxes[indexes]
-        # (n,)
-        _x1 = box[:, 0]
-        _y1 = box[:, 1]
-        _x2 = box[:, 2]
-        _y2 = box[:, 3]
-        side = _x2 - _x1
-        # (n,4)
-        offset = _offset[indexes]
-        # (n,)
-        x1 = _x1 + side * offset[:, 0]
-        y1 = _y1 + side * offset[:, 1]
-        x2 = _x2 + side * offset[:, 2]
-        y2 = _y2 + side * offset[:, 3]
-        # (n,)
-        cls = _cls[indexes][:, 0]
-        # np.array([x1, y1, x2, y2, cls]) (5,n)
-        boxes.extend(np.stack([x1, y1, x2, y2, cls], axis=1))
+            offset = _offset[index]
+            x1 = int(_x1 + side * offset[0])
+            y1 = int(_y1 + side * offset[1])
+            x2 = int(_x2 + side * offset[2])
+            y2 = int(_y2 + side * offset[3])
+            cls = _cls[index][0]
+            boxes.append([x1, y1, x2, y2, cls])
 
-        return tool.nms(np.stack(boxes), 0.3)
+        return tool.nms(np.array(boxes), 0.3)
 
     def onet_detect(self, image, rnet_boxes):
         boxes = []
@@ -168,51 +175,52 @@ class Detector:
             img_dataset.append(img_data)
 
         _cls, _offset, _point = self.onet(torch.stack(img_dataset))
-        _cls = _cls.data.cpu().numpy()
-        _offset = _offset.data.cpu().numpy()
-        _point = _point.data.cpu().numpy()
-        indexes, _ = np.where(_cls > 0.97)
-        # (n,5)
-        box = square_boxes[indexes]
-        # (n,)
-        _x1 = box[:, 0]
-        _y1 = box[:, 1]
-        _x2 = box[:, 2]
-        _y2 = box[:, 3]
-        side = _x2 - _x1
-        # (n,4)
-        offset = _offset[indexes]
-        # (n,)
-        x1 = _x1 + side * offset[:, 0]
-        y1 = _y1 + side * offset[:, 1]
-        x2 = _x2 + side * offset[:, 2]
-        y2 = _y2 + side * offset[:, 3]
-        # (n,)
-        cls = _cls[indexes][:, 0]
-        # (n,10)
-        point = _point[indexes]
-        px1 = _x1 + side * point[:, 0]
-        py1 = _y1 + side * point[:, 1]
-        px2 = _x1 + side * point[:, 2]
-        py2 = _y1 + side * point[:, 3]
-        px3 = _x1 + side * point[:, 4]
-        py3 = _y1 + side * point[:, 5]
-        px4 = _x1 + side * point[:, 6]
-        py4 = _y1 + side * point[:, 7]
-        px5 = _x1 + side * point[:, 8]
-        py5 = _y1 + side * point[:, 9]
-        # np.array([x1, y1, x2, y2, cls, px1, py1, px2, py2, px3, py3, px4, py4, px5, py5]) (15,n)
-        boxes.extend(np.stack([x1, y1, x2, y2, cls, px1, py1, px2, py2, px3, py3, px4, py4, px5, py5], axis=1))
+        _cls = _cls.data.cpu()
+        _offset = _offset.data.cpu()
+        _point = _point.data.cpu()
+        indexes = torch.nonzero(_cls > 0.96)[:, 0]
+        for index in indexes:
+            box = square_boxes[index]
+            _x1 = int(box[0])
+            _y1 = int(box[1])
+            _x2 = int(box[2])
+            _y2 = int(box[3])
+            side = _x2 - _x1
 
-        return tool.nms(np.stack(boxes), 0.3, isMin=True)
+            offset = _offset[index]
+            x1 = int(_x1 + side * offset[0])
+            y1 = int(_y1 + side * offset[1])
+            x2 = int(_x2 + side * offset[2])
+            y2 = int(_y2 + side * offset[3])
+            cls = _cls[index][0]
+
+            point = _point[index]
+            px1 = int(_x1 + side * point[0])
+            py1 = int(_y1 + side * point[1])
+            px2 = int(_x1 + side * point[2])
+            py2 = int(_y1 + side * point[3])
+            px3 = int(_x1 + side * point[4])
+            py3 = int(_y1 + side * point[5])
+            px4 = int(_x1 + side * point[6])
+            py4 = int(_y1 + side * point[7])
+            px5 = int(_x1 + side * point[8])
+            py5 = int(_y1 + side * point[9])
+
+            boxes.append([x1, y1, x2, y2, cls, px1, py1, px2, py2, px3, py3, px4, py4, px5, py5])
+
+        return tool.nms(np.array(boxes), 0.3, isMin=True)
 
 
 if __name__ == '__main__':
-    img_name = r"02.jpg"
+    img_name = r"08.jpg"
     img_path = os.path.join("./detect_img", img_name)
-    img = Image.open(img_path)
+    # img = Image.open(img_path)
+    img = cv2.imread(img_path)[..., ::-1]
+    # BGR转成RGB后会导致内存地址不连续
+    # img = np.ascontiguousarray(img, dtype=np.float32)
+    img = Image.fromarray(img)
     detector = Detector("param/p_net.pth", "param/r_net.pth", "param/o_net.pth")
-    pnet_boxes, rnet_boxes, onet_boxes = detector.detect(img)
+    onet_boxes = detector.detect(img)
     img = cv2.imread(img_path)
     for box in onet_boxes:
         x1 = int(box[0])

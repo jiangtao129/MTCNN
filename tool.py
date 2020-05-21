@@ -57,6 +57,31 @@ def convert_to_square(boxes):
     return square_boxes
 
 
+def soft_nms(boxes, thresh=0.3, isMin=False):
+    if boxes.shape[0] == 0:
+        return np.array([])
+    # 将框根据置信度从大到小排序
+    _boxes = boxes[(-boxes[:, 4]).argsort()]
+    r_box = []
+    # 计算iou，留下iou值小的框
+    while _boxes.shape[0] > 1:
+        a_box = _boxes[0]
+        b_boxes = _boxes[1:]
+        r_box.append(a_box)
+        iou_score = iou(a_box, b_boxes, isMin)
+        index = np.where(iou_score < thresh)
+        # iou值大的框，降低他们的置信度
+        index_score_max = np.where(iou_score >= thresh)
+        b_boxes[index_score_max, 4] *= np.array((1-iou_score[iou_score >= thresh]), dtype=np.float32)
+        r_box.extend(b_boxes[index_score_max])
+
+        _boxes = b_boxes[index]
+
+    if _boxes.shape[0] > 0:
+        r_box.append(_boxes[0])
+
+    return np.stack(r_box)
+
 if __name__ == '__main__':
     a = np.array([1, 1, 10, 10, 0.98])
     bs = np.array([[1, 1, 9, 9, 0.8], [9, 8, 13, 20, 0.7], [6, 11, 18, 17, 0.85]])
@@ -65,5 +90,7 @@ if __name__ == '__main__':
     bs = np.array([[1, 1, 10, 10, 0.98], [1, 1, 9, 9, 0.8], [9, 8, 13, 20, 0.7], [6, 11, 18, 17, 0.85]])
     print((-bs[:, 4]).argsort())
     print(nms(bs))
-    c = np.array([[1, 1, 9, 3]])
-    print(convert_to_square(c))
+    print("*************")
+    print(soft_nms(bs))
+    # c = np.array([[1, 1, 9, 3]])
+    # print(convert_to_square(c))

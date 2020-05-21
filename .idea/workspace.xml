@@ -2,14 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6727c59b-5c60-436b-aca7-439275c7a684" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/detect_img/07.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/detect_img/08.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/detect_img/09.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/detect_video.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/detect_video/test01.mp4" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webcam_demo.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/detect.py" beforeDir="false" afterPath="$PROJECT_DIR$/detect.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/detect_improve.py" beforeDir="false" afterPath="$PROJECT_DIR$/detect_improve.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out_img/04.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/out_img/04.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/param_abandon/o_net.pth" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/param_abandon/p_net.pth" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/param_abandon/r_net.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/generate_sample.py" beforeDir="false" afterPath="$PROJECT_DIR$/generate_sample.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/tool.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -37,17 +39,18 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../MyProject" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="D:\PycharmProjects\MTCNN_landmark\detect_img" />
-      <recent name="E:\PycharmProjects\MTCNN_landmark\param3" />
-      <recent name="E:\PycharmProjects\MTCNN_landmark" />
-      <recent name="E:\PycharmProjects\MTCNN_test02" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="E:\PycharmProjects\MTCNN_test02" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\PycharmProjects\MTCNN_landmark\detect_img" />
+      <recent name="D:\PycharmProjects\MTCNN_landmark\detect_video" />
+      <recent name="D:\PycharmProjects\MTCNN_landmark" />
+      <recent name="E:\PycharmProjects\MTCNN_landmark\param3" />
+      <recent name="E:\PycharmProjects\MTCNN_landmark" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -62,7 +65,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.detect_improve">
+  <component name="RunManager" selected="Python.webcam_demo">
     <configuration name="detect" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="MTCNN_test02" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -84,7 +87,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="detect_improve" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="detect_video" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="MTCNN_test02" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -96,7 +99,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/detect_improve.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/detect_video.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -105,7 +108,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="detection" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="tool" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="MTCNN_test02" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -117,7 +120,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/detection.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tool.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -126,7 +129,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="train_onet" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="video_detect" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="MTCNN_test02" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -138,7 +141,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/train_onet.py" />
+      <option name="SCRIPT_NAME" value="D:\PycharmProjects\MTCNN_landmark\webcam_demo.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -147,7 +150,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="train_rnet" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="webcam_demo" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="MTCNN_test02" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -159,7 +162,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/train_rnet.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/webcam_demo.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -170,11 +173,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.detect_improve" />
+        <item itemvalue="Python.webcam_demo" />
         <item itemvalue="Python.detect" />
-        <item itemvalue="Python.train_onet" />
-        <item itemvalue="Python.detection" />
-        <item itemvalue="Python.train_rnet" />
+        <item itemvalue="Python.tool" />
+        <item itemvalue="Python.video_detect" />
+        <item itemvalue="Python.detect_video" />
       </list>
     </recent_temporary>
   </component>
@@ -196,7 +199,9 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>

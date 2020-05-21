@@ -91,7 +91,7 @@ def gen_sample(face_size, stop_value):
                     continue
                 # 记录偏移后的坐标
                 cbox = [_x1, _y1, _x2, _y2]
-                # 计算两个做标签和5个关键点的偏移率
+                # 计算两个坐标点和5个关键点的偏移率
                 offset_x1 = (x1 - _x1) / _max_side
                 offset_y1 = (y1 - _y1) / _max_side
                 offset_x2 = (x2 - _x2) / _max_side

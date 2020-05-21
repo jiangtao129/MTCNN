@@ -134,7 +134,7 @@ class Detector:
         # idexes, _ = np.where(_cls > 0.6)
         _cls = _cls.data.cpu()
         _offset = _offset.data.cpu()
-        indexes = torch.nonzero(_cls > 0.9)[:, 0]
+        indexes = torch.nonzero(_cls > 0.6)[:, 0]
         for index in indexes:
             box = square_boxes[index]
             _x1 = int(box[0])
@@ -171,7 +171,7 @@ class Detector:
         _cls = _cls.data.cpu()
         _offset = _offset.data.cpu()
         _point = _point.data.cpu()
-        indexes = torch.nonzero(_cls > 0.985)[:, 0]
+        indexes = torch.nonzero(_cls > 0.9)[:, 0]
         for index in indexes:
             box = square_boxes[index]
             _x1 = int(box[0])
@@ -205,7 +205,7 @@ class Detector:
 
 
 if __name__ == '__main__':
-    img_path = r"./detect_img/04.jpg"
+    img_path = r"./detect_img/09.jpg"
     img = Image.open(img_path)
     # img_draw = ImageDraw.Draw(img)
     detector = Detector("param/p_net.pth", "param/r_net.pth", "param/o_net.pth")
@@ -219,12 +219,12 @@ if __name__ == '__main__':
         y1 = int(box[1])
         x2 = int(box[2])
         y2 = int(box[3])
-        cv2.rectangle(img, (x1, y1), (x2, y2), color=(0, 0, 255), thickness=3)
+        cv2.rectangle(img, (x1, y1), (x2, y2), color=(0, 0, 255), thickness=1)
         for i in range(5,15,2):
-            cv2.circle(img, (int(box[i]), int(box[i+1])), radius=2, color=(255, 255, 0), thickness=-1)
+            cv2.circle(img, (int(box[i]), int(box[i+1])), radius=1, color=(255, 255, 0), thickness=-1)
 
-    # cv2.imwrite("./out_img/04.jpg", img)
-    # cv2.imshow("img", img)
+    # cv2.imwrite("./out_img/09.jpg", img)
+    cv2.imshow("img", img)
     cv2.waitKey(0)
 
 
