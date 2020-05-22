@@ -4,13 +4,12 @@ import tool
 from PIL import Image
 import traceback
 
-img_dir = r"E:/DataSet/MTCNN/img_celeba"
-anno_src = r"E:/DataSet/MTCNN/list_bbox_celeba.txt"
-anno_landmarks_src = r"E:/DataSet/MTCNN/list_landmarks_celeba.txt"
-save_dir = r"E:/DataSet/MTCNN/landmaks"
+img_dir = r"D:\DataSet\CelebA\image\img_celeba"
+anno_src = r"D:\DataSet\CelebA\Anno\list_bbox_celeba.txt"
+anno_landmarks_src = r"D:\DataSet\CelebA\Anno\list_landmarks_celeba.txt"
+save_dir = r"D:\DataSet\MTCNN"
 # 为随机数种子做准备，使正样本，部分样本，负样本的比例为1：1：3
-float_num = [0.1, 0.5, 0.5, 0.95, 0.99, 0.99, 0.99, 0.99, 0.99, 0.99]
-
+float_num = [0.1, 0.1, 0.3, 0.5, 0.95, 0.95, 0.99, 0.99, 0.99, 0.99]
 
 def gen_sample(face_size, stop_value):
     # 创建保存样本的目录
@@ -35,39 +34,45 @@ def gen_sample(face_size, stop_value):
         negative_count = 0
         part_count = 0
 
-        # 按行读取5个标记点的标签文件，返回一个列表
-        landmarks_list = open(anno_landmarks_src).readlines()
+        # 按行读取5个关键点的标签文件，返回一个列表
+        with open(anno_landmarks_src) as f:
+            landmarks_list = f.readlines()
+        # 读取CelebA的标签文件
+        with open(anno_src) as f:
+            anno_list = f.readlines()
 
         # 开打人脸框的标签，循环读取每一行
-        for i, line in enumerate(open(anno_src)):
+        for i, (anno_line, landmarks) in enumerate(zip(anno_list, landmarks_list)):
             if i < 2:
                 continue
 
             # 分割标签，记录图片名和坐标点
-            landmarks = landmarks_list[i].split()
-            strs = line.split()
+            landmarks = landmarks.split()
+            strs = anno_line.split()
             img_name = strs[0].strip()
             print(img_name)
             img = Image.open(os.path.join(img_dir, img_name))
             img_w, img_h = img.size
-            x1 = int(strs[1].strip())
-            y1 = int(strs[2].strip())
-            w = int(strs[3].strip())
-            h = int(strs[4].strip()) * 0.9
-            x2 = x1 + w
-            y2 = y1 + h
+            x, y, w, h = float(strs[1].strip()), float(strs[2].strip()), float(strs[3].strip()), float(strs[4].strip())
+            # 标签矫正
+            x1 = int(x + w * 0.12)
+            y1 = int(y + h * 0.1)
+            x2 = int(x + w * 0.9)
+            y2 = int(y + h * 0.85)
+
+            w, h = x2 - x1, y2 - y1
 
             # 记录5个关键点的坐标
-            px1 = int(landmarks[1].strip())
-            py1 = int(landmarks[2].strip())
-            px2 = int(landmarks[3].strip())
-            py2 = int(landmarks[4].strip())
-            px3 = int(landmarks[5].strip())
-            py3 = int(landmarks[6].strip())
-            px4 = int(landmarks[7].strip())
-            py4 = int(landmarks[8].strip())
-            px5 = int(landmarks[9].strip())
-            py5 = int(landmarks[10].strip())
+            px1 = float(landmarks[1].strip())
+            py1 = float(landmarks[2].strip())
+            px2 = float(landmarks[3].strip())
+            py2 = float(landmarks[4].strip())
+            px3 = float(landmarks[5].strip())
+            py3 = float(landmarks[6].strip())
+            px4 = float(landmarks[7].strip())
+            py4 = float(landmarks[8].strip())
+            px5 = float(landmarks[9].strip())
+            py5 = float(landmarks[10].strip())
 
             # 判断坐标是否符合要求
             if max(w, h) < 40 or x1 < 0 or x2 < 0 or y1 < 0 or y2 < 0:
@@ -79,10 +84,12 @@ def gen_sample(face_size, stop_value):
             cy = y1 + h / 2
             max_side = max(w, h)
             for _ in range(5):
+                # 随机偏移中心点坐标以及边长
                 seed = float_num[np.random.randint(0, len(float_num))]
                 _max_side = max_side + np.random.randint(int(-max_side * seed), int(max_side * seed))
                 _cx = cx + np.random.randint(int(-cx * seed), int(cx * seed))
                 _cy = cy + np.random.randint(int(-cy * seed), int(cy * seed))
+                # 得到偏移后的坐标值
                 _x1 = _cx - _max_side / 2
                 _y1 = _cy - _max_side / 2
                 _x2 = _x1 + _max_side
@@ -115,16 +122,18 @@ def gen_sample(face_size, stop_value):
                 if iou > 0.7:
                     img_crop.save(os.path.join(positive_img_dir, "{0}.jpg".format(positive_count)))
                     anno_positive_file.write(
-                        "positive/{0}.jpg {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14} {15}\n".format(positive_count, 1,
-                            offset_x1, offset_y1,offset_x2,offset_y2, offset_px1, offset_py1, offset_px2, offset_py2,
+                        "positive/{0}.jpg {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14} {15}\n".format(
+                            positive_count, 1,
+                            offset_x1, offset_y1, offset_x2, offset_y2, offset_px1, offset_py1, offset_px2, offset_py2,
                             offset_px3, offset_py3, offset_px4, offset_py4, offset_px5, offset_py5))
                     anno_positive_file.flush()
                     positive_count += 1
-                elif 0.4 < iou < 0.65:
+                elif 0.4 < iou < 0.6:
                     img_crop.save(os.path.join(part_img_dir, "{0}.jpg".format(part_count)))
                     anno_part_file.write(
-                        "part/{0}.jpg {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14} {15}\n".format(part_count, 2,
-                             offset_x1, offset_y1, offset_x2,offset_y2, offset_px1, offset_py1, offset_px2, offset_py2,
+                        "part/{0}.jpg {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14} {15}\n".format(
+                            part_count, 2,
+                            offset_x1, offset_y1, offset_x2, offset_y2, offset_px1, offset_py1, offset_px2, offset_py2,
                             offset_px3, offset_py3, offset_px4, offset_py4, offset_px5, offset_py5))
                     anno_part_file.flush()
                     part_count += 1
@@ -141,6 +150,6 @@ def gen_sample(face_size, stop_value):
 
 
 if __name__ == '__main__':
-    gen_sample(12, 50000)
-    gen_sample(24, 50000)
-    gen_sample(48, 50000)
+    gen_sample(12, 100000)
+    gen_sample(24, 100000)
+    gen_sample(48, 100000)

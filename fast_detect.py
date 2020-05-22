@@ -15,7 +15,13 @@ device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
 
 
 class Detector:
-    def __init__(self, pnet_path, rnet_path, onet_path):
+    def __init__(self, pnet_path, rnet_path, onet_path, softnms=False, thresholds=None, factor=0.709):
+        if thresholds is None:
+            thresholds = [0.6, 0.6, 0.95]
+        self.thresholds = thresholds
+        self.factor = factor
+        self.softnms = softnms
+
         self.pnet = nets.PNet().to(device)
         self.rnet = nets.RNet().to(device)
         self.onet = nets.ONet().to(device)
@@ -35,7 +41,6 @@ class Detector:
     def detect(self, image):
         start_time = time.time()
         pnet_boxes = self.pnet_detect(image)
-        print("pnet:", pnet_boxes.shape)
         if pnet_boxes.shape[0] == 0:
             print("P网络为检测到人脸")
             return np.array([])
@@ -44,7 +49,6 @@ class Detector:
 
         start_time = time.time()
         rnet_boxes = self.rnet_detect(image, pnet_boxes)
-        print("rnet:", rnet_boxes.shape)
         if rnet_boxes.shape[0] == 0:
             print("R网络为检测到人脸")
             return np.array([])
@@ -53,7 +57,6 @@ class Detector:
 
         start_time = time.time()
         onet_boxes = self.onet_detect(image, rnet_boxes)
-        print("onet:", onet_boxes.shape)
         if onet_boxes.shape[0] == 0:
             print("O网路未检测到人脸")
             return np.array([])
@@ -78,18 +81,20 @@ class Detector:
             _offset = _offset[0].data.cpu()
 
             # (n,2)
-            indexes = torch.nonzero(_cls > 0.6)
+            indexes = torch.nonzero(_cls > self.thresholds[0])
             # for循环改进
             # for index in indexes:
             #     boxes.append(self.box(index, _cls[index[0], index[1]], _offset, scale))
             boxes.extend(self.box(indexes, _cls, _offset, scale))
 
-            scale *= 0.7
+            scale *= self.factor
             _w = int(w * scale)
             _h = int(h * scale)
             image = image.resize((_w, _h))
             min_side = min(_w, _h)
 
+        if self.softnms:
+            return tool.soft_nms(torch.stack(boxes).numpy(), 0.3)
         return tool.nms(torch.stack(boxes).numpy(), 0.3)
 
     def box(self, indexes, cls, offset, scale, stride=2, side_len=12):
@@ -130,7 +135,7 @@ class Detector:
 
         _cls = _cls.data.cpu().numpy()
         _offset = _offset.data.cpu().numpy()
-        indexes, _ = np.where(_cls > 0.6)
+        indexes, _ = np.where(_cls > self.thresholds[1])
         # (n,5)
         box = square_boxes[indexes]
         # (n,)
@@ -151,6 +156,8 @@ class Detector:
         # np.array([x1, y1, x2, y2, cls]) (5,n)
         boxes.extend(np.stack([x1, y1, x2, y2, cls], axis=1))
 
+        if len(boxes) == 0:
+            return np.array([])
         return tool.nms(np.stack(boxes), 0.3)
 
     def onet_detect(self, image, rnet_boxes):
@@ -171,7 +178,7 @@ class Detector:
         _cls = _cls.data.cpu().numpy()
         _offset = _offset.data.cpu().numpy()
         _point = _point.data.cpu().numpy()
-        indexes, _ = np.where(_cls > 0.97)
+        indexes, _ = np.where(_cls > self.thresholds[2])
         # (n,5)
         box = square_boxes[indexes]
         # (n,)
@@ -204,6 +211,8 @@ class Detector:
         # np.array([x1, y1, x2, y2, cls, px1, py1, px2, py2, px3, py3, px4, py4, px5, py5]) (15,n)
         boxes.extend(np.stack([x1, y1, x2, y2, cls, px1, py1, px2, py2, px3, py3, px4, py4, px5, py5], axis=1))
 
+        if len(boxes) == 0:
+            return np.array([])
         return tool.nms(np.stack(boxes), 0.3, isMin=True)
 
 

@@ -10,9 +10,9 @@ class FaceDataset(Dataset):
         super(FaceDataset, self).__init__()
         self.path = path
         self.datasets = []
-        self.datasets.extend(open(os.path.join(path, "anno_positive.txt")).readlines())
-        self.datasets.extend(open(os.path.join(path, "anno_negative.txt")).readlines())
-        self.datasets.extend(open(os.path.join(path, "anno_part.txt")).readlines())
+        self.datasets.extend(open(os.path.join(path, "positive.txt")).readlines())
+        self.datasets.extend(open(os.path.join(path, "negative.txt")).readlines())
+        self.datasets.extend(open(os.path.join(path, "part.txt")).readlines())
 
     def __len__(self):
         return len(self.datasets)

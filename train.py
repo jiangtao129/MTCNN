@@ -1,7 +1,8 @@
 import torch
 from torch.utils.data import DataLoader
-from face_dataset import FaceDataset
+from data.face_dataset import FaceDataset
 import os
+from tqdm.autonotebook import tqdm
 
 
 class Trainer:
@@ -25,10 +26,11 @@ class Trainer:
         else:
             print("NO Param")
 
-        dataloder = DataLoader(self.datasets, batch_size=512, shuffle=True, num_workers=4)
+        dataloader = DataLoader(self.datasets, batch_size=512, shuffle=True, num_workers=4)
         epochs = 0
         while True:
-            for i, (img_data, _cls, _offset, _point) in enumerate(dataloder):
+            dataloader = tqdm(dataloader)
+            for i, (img_data, _cls, _offset, _point) in enumerate(dataloader):
                 img_data = img_data.to(self.device)
                 _cls = _cls.to(self.device)
                 _offset = _offset.to(self.device)
@@ -62,18 +64,21 @@ class Trainer:
                     loss = cls_loss + offset_loss
 
                 if landmark:
-                    print("loss:{0}, cls_loss:{1}, offset_loss:{2}, point_loss:{3}".format(
-                        loss.float(), cls_loss.float(), offset_loss.float(), point_loss.float()))
+                    dataloader.set_description(
+                        "epochs:{}, loss:{:.4f}, cls_loss:{:.4f}, offset_loss:{:.4f}, point_loss:{:.4f}".format(
+                            epochs, loss.float(), cls_loss.float(), offset_loss.float(), point_loss.float()))
+                    # print("loss:{0:.4f}, cls_loss:{1:.4f}, offset_loss:{2:.4f}, point_loss:{3:.4f}".format(
+                    #     loss.float(), cls_loss.float(), offset_loss.float(), point_loss.float()))
                 else:
-                    print("loss:{0}, cls_loss:{1}, offset_loss:{2}".format(loss.float(), cls_loss.float(),offset_loss.float()))
+                    dataloader.set_description(
+                        "epochs:{}, loss:{:.4f}, cls_loss:{:.4f}, offset_loss:{:.4f}".format(
+                            epochs, loss.float(), cls_loss.float(), offset_loss.float()))
 
                 self.optimizer.zero_grad()
                 loss.backward()
                 self.optimizer.step()
 
             torch.save(self.net.state_dict(), self.param_path)
-            print("save success")
             epochs += 1
-            print("epochs:", epochs)
             if loss < stop_value:
                 break

@@ -19,7 +19,9 @@ device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
 
 
 class Detector:
-    def __init__(self, pnet_path, rnet_path, onet_path):
+    def __init__(self, pnet_path, rnet_path, onet_path, softnms=False):
+        self.softnms = softnms
+
         self.pnet = nets.PNet().to(device)
         self.rnet = nets.RNet().to(device)
         self.onet = nets.ONet().to(device)
@@ -96,7 +98,10 @@ class Detector:
             min_side = min(_w, _h)
 
         # return tool.nms(np.array(boxes), 0.3)
-        return tool.soft_nms(np.array(boxes), 0.3)
+
+        if self.softnms:
+            return tool.soft_nms(np.array(boxes), 0.3)
+        return tool.nms(np.array(boxes), 0.3)
 
     def box(self, index, cls, offset, scale, stride=2, side_len=12):
         _x1 = int(index[1] * stride) / scale
