@@ -2,10 +2,10 @@ from PIL import Image
 import cv2
 import os
 from fast_detect import Detector
-# from detect import Detector
 
 # from detect import Detector
 
+# from detect import Detector
 # param_rectify是矫正了CeleA数据标签的训练参数
 
 param_path = "param_rectify"
@@ -19,7 +19,7 @@ os.makedirs("./data/out_img", exist_ok=True)
 if __name__ == '__main__':
     img_path = os.path.join(detect_img, img_name)
     img = Image.open(img_path)
-    detector = Detector(p_net, r_net, o_net, softnms=False)
+    detector = Detector(p_net, r_net, o_net, softnms=False, thresholds=[0.6, 0.7, 0.95])
     detect_boxes = detector.detect(img)
 
     if len(detect_boxes) == 0:

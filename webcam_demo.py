@@ -19,11 +19,10 @@ fps = cap.get(cv2.CAP_PROP_FPS)
 # VideoWriter_fourcc为视频编解码器
 # cv2.VideoWriter_fourcc('F', 'L', 'V', '1'),该参数是Flash视频，文件名后缀为.flv
 # cv2.VideoWriter_fourcc('P', 'I', 'M', 'I'),该参数是MPEG-1编码类型，文件名后缀为.avi
-# fourcc = cv2.VideoWriter_fourcc('M', 'P', '4', '2')
-fourcc = cv2.VideoWriter_fourcc('P', 'I', 'M', 'I')
+fourcc = cv2.VideoWriter_fourcc('M', 'P', '4', '2')
 
-# create VideoWriter for saving
-outVideo = cv2.VideoWriter('out_video/save_video.avi', fourcc, fps, (width, height))
+# create VideoWriter for saving 文件名中需要有数字编号
+outVideo = cv2.VideoWriter('./data/out_video/save_video01.avi', fourcc, fps, (width, height))
 
 c = 0
 while cap.isOpened():

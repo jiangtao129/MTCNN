@@ -7,6 +7,7 @@ import time
 from PIL import Image, ImageDraw
 import cv2
 import os
+from torchvision.ops.boxes import batched_nms, nms
 
 """
 由于P网络检测时间较长，因此将P网络检测中取框的for循环，用数组切片形式替代
@@ -73,6 +74,9 @@ class Detector:
         min_side = min(w, h)
         scale = 1
 
+        #去除第一张
+        # scale = 0.7
+        # image = image.resize((int(w*scale), int(h*scale)))
         while min_side > 12:
             img_data = self.img_transfrom(image).to(device)
             img_data.unsqueeze_(0)
@@ -95,7 +99,9 @@ class Detector:
 
         if self.softnms:
             return tool.soft_nms(torch.stack(boxes).numpy(), 0.3)
-        return tool.nms(torch.stack(boxes).numpy(), 0.3)
+        # return tool.nms(torch.stack(boxes).numpy(), 0.3)
+        boxes = torch.stack(boxes)
+        return boxes[nms(boxes[:, :4], boxes[:, 4], 0.3)].numpy()
 
     def box(self, indexes, cls, offset, scale, stride=2, side_len=12):
         # (n,)
@@ -133,11 +139,16 @@ class Detector:
         # (n,1) (n,4)
         _cls, _offset = self.rnet(torch.stack(img_dataset))
 
-        _cls = _cls.data.cpu().numpy()
-        _offset = _offset.data.cpu().numpy()
-        indexes, _ = np.where(_cls > self.thresholds[1])
+        _cls = _cls.data.cpu()
+        _offset = _offset.data.cpu()
+        # (14,)
+        indexes = torch.nonzero(_cls > self.thresholds[1])[:, 0]
+
         # (n,5)
-        box = square_boxes[indexes]
+        box = torch.from_numpy(square_boxes[indexes])
+        # indexes为一维tensor,square_boxes为二维ndarray, 取索引时如果indexes只有一个时，box则为一维数据，需要加轴,
+        if len(indexes) == 1:
+            box.unsqueeze_(0)
         # (n,)
         _x1 = box[:, 0]
         _y1 = box[:, 1]
@@ -154,11 +165,12 @@ class Detector:
         # (n,)
         cls = _cls[indexes][:, 0]
         # np.array([x1, y1, x2, y2, cls]) (5,n)
-        boxes.extend(np.stack([x1, y1, x2, y2, cls], axis=1))
-
+        boxes.extend(torch.stack([x1, y1, x2, y2, cls], dim=1))
         if len(boxes) == 0:
             return np.array([])
-        return tool.nms(np.stack(boxes), 0.3)
+
+        boxes = torch.stack(boxes)
+        return boxes[nms(boxes[:, :4], boxes[:, 4], 0.3)].numpy()
 
     def onet_detect(self, image, rnet_boxes):
         boxes = []
@@ -217,8 +229,7 @@ class Detector:
 
 
 if __name__ == '__main__':
-    img_name = r"02.jpg"
-    img_path = os.path.join("./detect_img", img_name)
+    img_path = r"./data/detect_img/06.jpg"
     img = Image.open(img_path)
     detector = Detector("param/p_net.pth", "param/r_net.pth", "param/o_net.pth")
     pnet_boxes, rnet_boxes, onet_boxes = detector.detect(img)
@@ -231,6 +242,5 @@ if __name__ == '__main__':
         cv2.rectangle(img, (x1, y1), (x2, y2), color=(0, 0, 255), thickness=3)
         for i in range(5, 15, 2):
             cv2.circle(img, (int(box[i]), int(box[i + 1])), radius=2, color=(255, 255, 0), thickness=-1)
-    # cv2.imwrite(os.path.join("./out_img", img_name), img)
-    cv2.imshow("img", img)
+    # cv2.imshow("img", img)
     cv2.waitKey(0)

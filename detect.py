@@ -19,7 +19,11 @@ device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
 
 
 class Detector:
-    def __init__(self, pnet_path, rnet_path, onet_path, softnms=False):
+    def __init__(self, pnet_path, rnet_path, onet_path, softnms=False, thresholds=None, factor=0.709):
+        if thresholds is None:
+            thresholds = [0.6, 0.7, 0.95]
+        self.thresholds = thresholds
+        self.factor = factor
         self.softnms = softnms
 
         self.pnet = nets.PNet().to(device)
@@ -41,7 +45,6 @@ class Detector:
     def detect(self, image):
         start_time = time.time()
         pnet_boxes = self.pnet_detect(image)
-        print("pnet:", pnet_boxes.shape)
         if pnet_boxes.shape[0] == 0:
             print("P网络为检测到人脸")
             return np.array([])
@@ -50,7 +53,6 @@ class Detector:
 
         start_time = time.time()
         rnet_boxes = self.rnet_detect(image, pnet_boxes)
-        print("rnet:", rnet_boxes.shape)
         if rnet_boxes.shape[0] == 0:
             print("R网络为检测到人脸")
             return np.array([])
@@ -59,7 +61,6 @@ class Detector:
 
         start_time = time.time()
         onet_boxes = self.onet_detect(image, rnet_boxes)
-        print("onet:", onet_boxes.shape)
         if onet_boxes.shape[0] == 0:
             print("O网路未检测到人脸")
             return np.array([])
@@ -86,12 +87,12 @@ class Detector:
             _cls = _cls[0][0].data.cpu()
             _offset = _offset[0].data.cpu()
             # 找到置信度大于0.6的索引，根据索引判断建议框在原图的位置，在根据建议框求出真实框
-            indexes = torch.nonzero(_cls > 0.8)
+            indexes = torch.nonzero(_cls > self.thresholds[0])
             # idexes.shape：(n,2), n为符合条件的索引个数
             for index in indexes:
                 boxes.append(self.box(index, _cls[index[0], index[1]], _offset, scale))
 
-            scale *= 0.7
+            scale *= self.factor
             _w = int(w * scale)
             _h = int(h * scale)
             image = image.resize((_w, _h))
@@ -141,7 +142,7 @@ class Detector:
         # idexes, _ = np.where(_cls > 0.6)
         _cls = _cls.data.cpu()
         _offset = _offset.data.cpu()
-        indexes = torch.nonzero(_cls > 0.6)[:, 0]
+        indexes = torch.nonzero(_cls > self.thresholds[1])[:, 0]
         for index in indexes:
             box = square_boxes[index]
             _x1 = int(box[0])
@@ -178,7 +179,7 @@ class Detector:
         _cls = _cls.data.cpu()
         _offset = _offset.data.cpu()
         _point = _point.data.cpu()
-        indexes = torch.nonzero(_cls > 0.8)[:, 0]
+        indexes = torch.nonzero(_cls > self.thresholds[2])[:, 0]
         for index in indexes:
             box = square_boxes[index]
             _x1 = int(box[0])
