@@ -125,7 +125,8 @@ class Detector:
     def rnet_detect(self, image, pnet_boxes):
         boxes = []
         img_dataset = []
-        square_boxes = tool.convert_to_square(pnet_boxes)
+        # 取出正方形框并转成tensor，方便后面用tensor去索引
+        square_boxes = torch.from_numpy(tool.convert_to_square(pnet_boxes))
         for box in square_boxes:
             _x1 = int(box[0])
             _y1 = int(box[1])
@@ -145,10 +146,7 @@ class Detector:
         indexes = torch.nonzero(_cls > self.thresholds[1])[:, 0]
 
         # (n,5)
-        box = torch.from_numpy(square_boxes[indexes])
-        # indexes为一维tensor,square_boxes为二维ndarray, 取索引时如果indexes只有一个时，box则为一维数据，需要加轴,
-        if len(indexes) == 1:
-            box.unsqueeze_(0)
+        box = square_boxes[indexes]
         # (n,)
         _x1 = box[:, 0]
         _y1 = box[:, 1]

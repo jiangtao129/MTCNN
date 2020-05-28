@@ -46,7 +46,7 @@ while cap.isOpened():
                         cv2.circle(frame, (int(box[i]), int(box[i + 1])), radius=1, color=(255, 255, 0), thickness=-1)
         c += 1
         # 将处理后的图片存入输出视频
-        # outVideo.write(frame)
+        outVideo.write(frame)
 
         cv2.imshow('video', frame)
         c = cv2.waitKey(1)
